@@ -1,19 +1,73 @@
 #!/usr/bin/env python
-
+import re
 import urllib.request
+from datetime import date, timedelta
 
-from CustomHTMLParser import CustomHTMLParser
+from CustomParser import *
+from TimeSlots import TimeSlots, Weekday
 
 if __name__ == '__main__':
+    nextMonday = date.today()
+    if nextMonday.weekday() != 0:
+        nextMonday = nextMonday + timedelta(days=7 - nextMonday.weekday())
+
     # Fetch list of gyms
-    gyms = []
-    baseUrl = 'https://stadtplan.bonn.de/cms/cms.pl?Amt=Stadtplan&set=5_1_1_1&act=1&Drucken=1&umtausch=&geoid='
+    gyms = list()
+    listUrl = 'https://stadtplan.bonn.de/cms/cms.pl?Amt=Stadtplan&set=5_1_1_1&act=1&Drucken=1&umtausch=&geoid='
 
     for i in range(0, 210, 10):
-        req = urllib.request.urlopen(baseUrl + str(i))
+        # Fetch
+        req = urllib.request.urlopen(listUrl + str(i))
         contentType = req.info().get('Content-Type')
         resp = req.read().decode(contentType.split('=')[1])
-        parser = CustomHTMLParser()
+
+        # Parse
+        parser = GymListParser()
         parser.feed(resp)
         print(parser.infos)
+        gyms.extend(parser.infos)
         break  # todo remove in productin
+
+    scheduleUrl = 'https://stadtplan.bonn.de/cms/cms.pl?Amt=Stadtplan&set=5_1_3_0&act=1&Drucken=1&meta=neu&sid=&suchwert='
+
+    schedules = list()
+    for gym in gyms:
+        schedule = dict()
+        schedule['gymId'] = gym[0]
+        schedule['gymName'] = gym[1]
+        schedule['timeslots'] = TimeSlots()
+
+        # Fetch
+        req = urllib.request.urlopen(f"{scheduleUrl}{schedule['gymId']}FFF{nextMonday.day}.{nextMonday.month}.{nextMonday.year}")
+        contentType = req.info().get('Content-Type')
+        resp = req.read().decode(contentType.split('=')[1])
+
+        # Parse
+        parser = ScheduleParser()
+        parser.feed(resp)
+        timeinfoRegex = re.compile('^(\\w+) .+ --- ([0-9]+):([0-9]+) - ([0-9]+):([0-9]+)')
+        for details in parser.schedule:
+            timeinfo = details[0]
+            eventType = details[1]
+            # Only look at regular events
+            if 'regelmäßiger' in eventType:
+                dayStr, starthour, startmin, endhour, endmin = timeinfoRegex.search(timeinfo).groups()
+                days = {
+                    "Montag": Weekday.MONDAY,
+                    "Dienstag": Weekday.TUESDAY,
+                    "Mittwoch": Weekday.WEDNESDAY,
+                    "Donnerstag": Weekday.THURSDAY,
+                    "Freitag": Weekday.FRIDAY,
+                    "Samstag": Weekday.SATURDAY,
+                    "Sonntag": Weekday.SUNDAY,
+                }
+                try:
+                    day = days[dayStr]
+                    schedule['timeslots'].block((day, int(starthour), int(startmin)), (day, int(endhour), int(endmin)))
+                except KeyError:
+                    print("Unknown day descriptor: " + dayStr)
+
+        schedules.append(schedule)
+        break
+
+    print(schedules[0]['timeslots'].slots())
