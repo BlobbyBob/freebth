@@ -38,7 +38,8 @@ if __name__ == '__main__':
         schedule['timeslots'] = TimeSlots()
 
         # Fetch
-        req = urllib.request.urlopen(f"{scheduleUrl}{schedule['gymId']}FFF{nextMonday.day}.{nextMonday.month}.{nextMonday.year}")
+        req = urllib.request.urlopen(
+            f"{scheduleUrl}{schedule['gymId']}FFF{nextMonday.day}.{nextMonday.month}.{nextMonday.year}")
         contentType = req.info().get('Content-Type')
         resp = req.read().decode(contentType.split('=')[1])
 
@@ -70,4 +71,9 @@ if __name__ == '__main__':
         schedules.append(schedule)
         break
 
-    print(schedules[0]['timeslots'].slots())
+    for schedule in schedules:
+        freeslots = schedule['timeslots'].find_free((9, 0), (22, 0), 30)
+        if len(freeslots) > 0:
+            print(schedule['gymName'])
+            for slot in freeslots:
+                print("    " + slot)
