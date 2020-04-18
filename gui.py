@@ -2,17 +2,19 @@ import http.server
 import socketserver
 from urllib.parse import urlparse, parse_qs
 
+from TimeSlots import Weekday
+
 schedules = []
 
 
-def compute_overview(starthour, startmin, endhour, endmin, slotsize):
+def compute_overview(starthour, startmin, endhour, endmin, slotsize, days):
     schedule_url = 'https://stadtplan.bonn.de/cms/cms.pl?Amt=Stadtplan&set=5_1_3_0&act=1&Drucken=1&meta=neu&sid=&suchwert='
 
     output = f"<h2>Freie Slots (Mindestgröße {slotsize} min) zwischen {starthour}:{startmin:02} und {endhour}:{endmin:02}</h2>"
     for schedule in schedules:
         if schedule['sectioned']:
             for i, timeslots in enumerate(schedule['timeslots']):
-                freeslots = timeslots.find_free((starthour, startmin), (endhour, endmin), slotsize)
+                freeslots = timeslots.find_free((starthour, startmin), (endhour, endmin), slotsize, days)
                 if len(freeslots) > 0:
                     output += f"<b>{schedule['gymName']}</b> (Hallenteil {i + 1})<br>"
                     output += f"<small><a href='{schedule_url}{schedule['gymId']}' target='_blank'>Stadt Bonn</a> - " \
@@ -23,9 +25,9 @@ def compute_overview(starthour, startmin, endhour, endmin, slotsize):
                         output += f"<li>{slot}</li>"
                     output += "</ul>"
         else:
-            freeslots = schedule['timeslots'].find_free((starthour, startmin), (endhour, endmin), slotsize)
+            freeslots = schedule['timeslots'].find_free((starthour, startmin), (endhour, endmin), slotsize, days)
             if len(freeslots) > 0:
-                output += f"<b>{schedule['gymName']}</b>"
+                output += f"<b>{schedule['gymName']}</b><br>"
                 output += f"<small><a href='{schedule_url}{schedule['gymId']}' target='_blank'>Stadt Bonn</a> - " \
                           f"<a href='#details' onclick='return details(\"{schedule['gymId']}\")'>Schnellübersicht" \
                           f"</a></small>"
@@ -98,7 +100,13 @@ class FreebthRequestHandler(http.server.BaseHTTPRequestHandler):
                         endmin = int(parameters['emin'][0])
                     if 'slot' in parameters:
                         slotsize = int(parameters['slot'][0])
-                    self.wfile.write(compute_overview(starthour, startmin, endhour, endmin, slotsize).encode('utf-8'))
+                    days = list()
+                    if 'days' in parameters:
+                        days_param = parameters['days'][0].split('.')
+                        for i in range(0, 7):
+                            if str(i) in days_param:
+                                days.append(Weekday(i))
+                    self.wfile.write(compute_overview(starthour, startmin, endhour, endmin, slotsize, days).encode('utf-8'))
         except:
             print("An error occured during the request.")
 

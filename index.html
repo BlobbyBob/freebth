@@ -62,6 +62,16 @@
     <h5>Auf der Suche nach freien Turnhallen</h5>
     <form class="form">
         <div class="row">
+            <div class="col-12 m-auto">
+                Wochentage:
+                <label><input id="day0" type="checkbox" checked> Montag</label>
+                <label><input id="day1" type="checkbox" checked> Dienstag</label>
+                <label><input id="day2" type="checkbox" checked> Mittwoch</label>
+                <label><input id="day3" type="checkbox" checked> Donnerstag</label>
+                <label><input id="day4" type="checkbox" checked> Freitag</label>
+                <label><input id="day5" type="checkbox" checked> Samstag</label>
+                <label><input id="day6" type="checkbox" checked> Sonntag</label>
+            </div>
             <div class="col-12 col-lg-4 m-auto">
                 Startzeit:
                 <input id="shour" type="number" min="0" max="23" step="1" size="3" value="9">h
@@ -138,10 +148,21 @@
         urlSearchParams.append('ehour', document.getElementById('ehour').value);
         urlSearchParams.append('emin', document.getElementById('emin').value);
         urlSearchParams.append('slot', document.getElementById('slot').value);
+        let days = [];
+        for (let i = 0; i < 7; i++) {
+            if (daySelected(i)) {
+                days.push(i);
+            }
+        }
+        urlSearchParams.append('days', days.join('.'))
         const url = `${base}/?${urlSearchParams.toString()}`;
         document.getElementById('overview').innerHTML = await ajax(url);
 
         return false;
+    }
+
+    function daySelected(id) {
+        return document.getElementById('day' + id).checked;
     }
 
     hideDetails();

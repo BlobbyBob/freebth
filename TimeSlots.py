@@ -56,18 +56,22 @@ class TimeSlots:
     def slots(self):
         return self.__slots
 
-    def find_free(self, starttime, endtime, minslotsize=60):
+    def find_free(self, starttime, endtime, minslotsize=60, days=None):
         """
         Check if a free slot with the defined constraints is available
+        :param days: list of allowed days as weekdays
         :param starttime: tuple(starthour, startmin)
         :param endtime: tuple(endhour, endmin)
         :param minslotsize: minimum slot size wanted (in minutes)
         :return: String list of all slots in text form
         """
 
+        if days is None:
+            days = Weekday
+
         slots = []
         minslots = ceil(minslotsize / 5)
-        for day in Weekday:
+        for day in days:
             startindex = day * (24 * 12) + starttime[0] * 12 + floor(starttime[1])
             endindex = day * (24 * 12) + endtime[0] * 12 + ceil(endtime[1]) - 1
             slotsize = 0
