@@ -7,4 +7,7 @@ Script for fetching free time slots for public service gyms in the city of Bonn.
 
 ## Usage
 
-Just use Python 3 to run the `main.py` - everything is done using the standard library. 
+Just make sure Python 3 is installed and run:
+```
+freebth
+``` 
