@@ -64,7 +64,7 @@ if __name__ == '__main__':
             if sectioned:
                 sections = parse_sections(sectioninfo)
                 for section in sections:
-                    parse_into_timeslots(schedule['timeslots'][section-1], timeinfo, eventType)
+                    parse_into_timeslots(schedule['timeslots'][section - 1], timeinfo, eventType)
             else:
                 parse_into_timeslots(schedule['timeslots'], timeinfo, eventType)
 
@@ -77,7 +77,7 @@ if __name__ == '__main__':
             for i, timeslots in enumerate(schedule['timeslots']):
                 freeslots = timeslots.find_free((9, 0), (22, 0), 30)
                 if len(freeslots) > 0:
-                    print(f"{schedule['gymName']} (Hallenteil {i+1})")
+                    print(f"{schedule['gymName']} (Hallenteil {i + 1})")
                     for slot in freeslots:
                         print("    " + slot)
         else:

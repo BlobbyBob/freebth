@@ -44,7 +44,7 @@ class TimeSlots:
         :return:
         """
         startindex = starttime[0] * (24 * 12) + starttime[1] * 12 + floor(starttime[2] / 5)
-        endindex = endtime[0] * (24 * 12) + endtime[1] * 12 + ceil(endtime[2] / 5) - 1
+        endindex = endtime[0] * (24 * 12) + endtime[1] * 12 + ceil(endtime[2] / 5)
 
         for i in range(startindex, endindex, 1):
             self.__slots[i % slotcount] = True
@@ -74,21 +74,32 @@ class TimeSlots:
             for i in range(startindex, endindex, 1):
                 if self.__slots[i]:
                     if slotsize > minslots:
-                        slotsize -= 1
                         s = i - slotsize
                         hour = (s % (24 * 12)) // 12
                         minute = ((s % 12) * 5) % 60
                         length = slotsize * 5
                         slots.append(f"Freier Slot: {str(day)} ab {hour:02}:{minute:02} für {length} Minuten")
-                        slotsize = 0
+                    slotsize = 0
                 else:
                     slotsize += 1
-            if slotsize > minslots:
-                slotsize -= 1
-                s = endindex - slotsize
+            if slotsize >= minslots:
+                slotsize += 1
+                s = endindex - slotsize + 1
                 hour = (s % (24 * 12)) // 12
                 minute = ((s % 12) * 5) % 60
                 length = slotsize * 5
                 slots.append(f"Freier Slot: {str(day)} ab {hour:02}:{minute:02} für {length} Minuten")
 
         return slots
+
+    def print_day(self, day):
+        print("Slots am " + str(day) + ":")
+        for i in range(day * (24 * 12), (day+1) * (24 * 12)):
+            if i % 12 == 0:
+                print(f"{(i % (24 * 12)) // 12:2} Uhr: ", end='')
+            if self.__slots[i]:
+                print('0', end='')
+            else:
+                print('.', end='')
+            if i % 12 == 11:
+                print()
