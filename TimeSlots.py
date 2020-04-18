@@ -94,7 +94,7 @@ class TimeSlots:
 
     def print_day(self, day):
         print("Slots am " + str(day) + ":")
-        for i in range(day * (24 * 12), (day+1) * (24 * 12)):
+        for i in range(day * (24 * 12), (day + 1) * (24 * 12)):
             if i % 12 == 0:
                 print(f"{(i % (24 * 12)) // 12:2} Uhr: ", end='')
             if self.__slots[i]:
@@ -103,3 +103,21 @@ class TimeSlots:
                 print('.', end='')
             if i % 12 == 11:
                 print()
+
+    def html_preformatted(self):
+        output = f"        {str(Weekday.MONDAY): <11}  {str(Weekday.TUESDAY): <11}  {str(Weekday.WEDNESDAY): <11}  " \
+                 f"{str(Weekday.THURSDAY): <11}  {str(Weekday.FRIDAY): <11}  {str(Weekday.SATURDAY): <11}  " \
+                 f"{str(Weekday.SUNDAY): <11}\n"
+        output += "\n"
+        for hour in range(0, 24):
+            output += f"{hour:2} Uhr  "
+            for day in range(0, 7):
+                for slot in range(0, 11):
+                    if self.__slots[day * (24 * 12) + hour * 12 + slot]:
+                        output += "<span class='red'>&nbsp;</span>"
+                    else:
+                        output += "<span class='green'>&nbsp;</span>"
+                if day != 6:
+                    output += '  '
+            output += '\n'
+        return output

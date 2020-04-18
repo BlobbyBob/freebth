@@ -16,7 +16,7 @@ def compute_overview(starthour, startmin, endhour, endmin, slotsize):
                 if len(freeslots) > 0:
                     output += f"<b>{schedule['gymName']}</b> (Hallenteil {i + 1})<br>"
                     output += f"<small><a href='{schedule_url}{schedule['gymId']}' target='_blank'>Stadt Bonn</a> - " \
-                              f"<a href='' onclick='javascript:load(\"list={schedule['gymId']}\")'>Schnellübersicht</a></small>"
+                              f"<a href='' onclick='javascript:details(\"{schedule['gymId']}\")'>Schnellübersicht</a></small>"
                     output += "<ul>"
                     for slot in freeslots:
                         output += f"<li>{slot}</li>"
@@ -33,6 +33,26 @@ def compute_overview(starthour, startmin, endhour, endmin, slotsize):
     return output
 
 
+def compute_details(gym_id):
+    for schedule in schedules:
+        if schedule['gymId'] == gym_id:
+            output = f"<h3>Übersicht für {schedule['gymName']}</h3>"
+            if schedule['sectioned']:
+                for i, timeslots in enumerate(schedule['timeslots']):
+                    output += f"<h5>Hallenteil {i+1}</h5>"
+                    output += "<pre>"
+                    output += timeslots.html_preformatted()
+                    output += "</pre>"
+            else:
+                output += "<pre>"
+                output += schedule['timeslots'].html_preformatted()
+                output += "</pre>"
+            output += "<style>.red{background-color:red;}.green{background-color:green}</style>"
+            return output
+
+    return 'Nichts gefunden'
+
+
 class FreebthRequestHandler(http.server.BaseHTTPRequestHandler):
     def do_GET(self):
         try:
@@ -43,22 +63,26 @@ class FreebthRequestHandler(http.server.BaseHTTPRequestHandler):
             requested = self.requestline.split(' ')[1]
             url = urlparse(requested)
             parameters = parse_qs(url.query)
-            starthour = 9
-            startmin = 0
-            endhour = 22
-            endmin = 0
-            slotsize = 60
-            if 'shour' in parameters:
-                starthour = int(parameters['shour'][0])
-            if 'smin' in parameters:
-                startmin = int(parameters['smin'][0])
-            if 'ehour' in parameters:
-                endhour = int(parameters['ehour'][0])
-            if 'emin' in parameters:
-                endmin = int(parameters['emin'][0])
-            if 'slot' in parameters:
-                slotsize = int(parameters['slot'][0])
-            self.wfile.write(compute_overview(starthour, startmin, endhour, endmin, slotsize).encode('utf-8'))
+
+            if 'details' in parameters:
+                self.wfile.write(compute_details(parameters['details'][0]).encode('utf-8'))
+            else:
+                starthour = 9
+                startmin = 0
+                endhour = 22
+                endmin = 0
+                slotsize = 60
+                if 'shour' in parameters:
+                    starthour = int(parameters['shour'][0])
+                if 'smin' in parameters:
+                    startmin = int(parameters['smin'][0])
+                if 'ehour' in parameters:
+                    endhour = int(parameters['ehour'][0])
+                if 'emin' in parameters:
+                    endmin = int(parameters['emin'][0])
+                if 'slot' in parameters:
+                    slotsize = int(parameters['slot'][0])
+                self.wfile.write(compute_overview(starthour, startmin, endhour, endmin, slotsize).encode('utf-8'))
         except:
             print("An error occured during the request.")
 
