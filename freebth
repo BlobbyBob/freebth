@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 import os
 import pickle
-import re
 import urllib.request
 from datetime import date, timedelta
-from random import randint
 from time import sleep
 
+import gui
 from CustomParser import *
 from TimeSlots import *
 from util import *
-import gui
 
 if __name__ == '__main__':
     nextMonday = date.today()
@@ -37,7 +35,6 @@ if __name__ == '__main__':
             print(parser.infos)
             gyms.extend(parser.infos)
             sleep(0.1)
-            break
 
         scheduleUrl = 'https://stadtplan.bonn.de/cms/cms.pl?Amt=Stadtplan&set=5_1_3_0&act=1&Drucken=1&meta=neu&sid=&suchwert='
 
@@ -80,7 +77,6 @@ if __name__ == '__main__':
             schedule['sectioned'] = sectioned
             schedules.append(schedule)
             sleep(0.1)
-            break
 
         # Save result
         with open(datafile, 'wb') as f:
@@ -91,4 +87,4 @@ if __name__ == '__main__':
             schedules = pickle.load(f)
 
     gui.schedules = schedules
-    gui.start_webserver(randint(2000, 3000))
+    gui.start_webserver()

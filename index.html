@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>freetbh</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+          integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <style>
+        .red {
+            background-color: darkred;
+        }
+
+        .green {
+            background-color: seagreen;
+        }
+
+        #ctrl h1 {
+            font-family: monospace;
+        }
+
+        #details {
+            max-height: 30em;
+            overflow-x: auto;
+            overflow-y: auto;
+            padding: 5px;
+            border: 1px solid lightgrey;
+        }
+
+        #details .controls {
+            float: right;
+        }
+
+        body {
+            padding-top: 30px;
+        }
+
+        #ctrl h5 {
+            font-style: italic;
+        }
+
+        #ctrl input {
+            margin: 7px;
+        }
+
+        #ctrl button {
+            margin: 12px;
+        }
+
+        #overview {
+            margin-top: 20px;
+            border-top: 1px solid dimgrey;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body class="container">
+<div id="ctrl">
+    <h1>freebth <a class="float-right" href="https://github.com/BlobbyBob/freebth"><img src="github.png"
+                                                                                        alt="View on GitHub"
+                                                                                        title="View on GitHub"/></a>
+    </h1>
+    <h5>Auf der Suche nach freien Turnhallen</h5>
+    <form class="form">
+        <div class="row">
+            <div class="col-12 col-lg-4 m-auto">
+                Startzeit:
+                <input id="shour" type="number" min="0" max="23" step="1" size="3" value="9">h
+                <input id="smin" type="number" min="0" max="59" step="1" size="3" value="0">min
+            </div>
+            <div class="col-12 col-lg-4 m-auto">
+                Endzeit:
+                <input id="ehour" type="number" min="0" max="23" step="1" size="3" value="17">h
+                <input id="emin" type="number" min="0" max="59" step="1" size="3" value="0">min
+            </div>
+            <div class="col-12 col-lg-4 m-auto">
+                Mindestdauer:
+                <input id="slot" type="number" min="5" step="5" size="4" value="30">min
+            </div>
+        </div>
+        <button onclick="return refresh()" class="btn btn-primary w-100">Aktualisieren</button>
+    </form>
+</div>
+<div id="details" class="hidden">
+    <div class="controls">
+        <button class="btn btn-info" onclick="return hideDetails()">Ausblenden</button>
+    </div>
+    <div id="detailcontent">
+    </div>
+</div>
+<div id="overview">
+
+</div>
+<script>
+    const base = 'http://localhost:2020'
+
+    async function details(id) {
+        const urlSearchParams = new URLSearchParams();
+        urlSearchParams.append('details', id);
+        const url = `${base}/?${urlSearchParams.toString()}`;
+        document.getElementById('detailcontent').innerHTML = await ajax(url);
+        document.getElementById('details').hidden = false;
+        return false;
+    }
+
+    function hideDetails() {
+        document.getElementById('details').hidden = true;
+        return false;
+    }
+
+    async function ajax(url) {
+        return new Promise(function (resolve, reject) {
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', url);
+            xhr.onload = function () {
+                if (this.status >= 200 && this.status < 300) {
+                    resolve(xhr.response);
+                } else {
+                    reject({
+                        status: this.status,
+                        statusText: xhr.statusText
+                    });
+                }
+            };
+            xhr.onerror = function () {
+                reject({
+                    status: this.status,
+                    statusText: xhr.statusText
+                });
+            };
+            xhr.send();
+        });
+    }
+
+    async function refresh() {
+        const urlSearchParams = new URLSearchParams();
+        urlSearchParams.append('shour', document.getElementById('shour').value);
+        urlSearchParams.append('smin', document.getElementById('smin').value);
+        urlSearchParams.append('ehour', document.getElementById('ehour').value);
+        urlSearchParams.append('emin', document.getElementById('emin').value);
+        urlSearchParams.append('slot', document.getElementById('slot').value);
+        const url = `${base}/?${urlSearchParams.toString()}`;
+        document.getElementById('overview').innerHTML = await ajax(url);
+
+        return false;
+    }
+
+    hideDetails();
+    refresh();
+    document.getElementsByTagName('form')[0].onsubmit = function (e) {
+        e.preventDefault();
+    };
+</script>
+</body>
+</html>
