@@ -20,8 +20,8 @@ def parse_section_meta(schedule):
                     max_section = max(max_section, int(sections.split('-')[1]))
                 else:
                     max_section = max(max_section, int(sections))
-            except KeyError:
-                print(f"Unexpected format of section descriptor: '{sectioninfo}'")
+            except:
+                print("Unexpected format of section descriptor: '" + sectioninfo + "'")
 
     return sectioned, max_section
 
@@ -40,7 +40,7 @@ def parse_sections(sectioninfo):
         else:
             sections.append(int(info))
     else:
-        print(f"Unexpected format of section info: '{sectioninfo}'")
+        print("Unexpected format of section descriptor: '" + sectioninfo + "'")
 
     return sections
 

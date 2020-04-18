@@ -82,7 +82,7 @@ class TimeSlots:
                         hour = (s % (24 * 12)) // 12
                         minute = ((s % 12) * 5) % 60
                         length = slotsize * 5
-                        slots.append(f"Freier Slot: {str(day)} ab {hour:02}:{minute:02} für {length} Minuten")
+                        slots.append("Freier Slot: %s ab %2s:%2s für %s Minuten" % (str(day), hour, minute, length))
                     slotsize = 0
                 else:
                     slotsize += 1
@@ -92,7 +92,7 @@ class TimeSlots:
                 hour = (s % (24 * 12)) // 12
                 minute = ((s % 12) * 5) % 60
                 length = slotsize * 5
-                slots.append(f"Freier Slot: {str(day)} ab {hour:02}:{minute:02} für {length} Minuten")
+                slots.append("Freier Slot: %s ab %2s:%2s für %s Minuten" % (str(day), hour, minute, length))
 
         return slots
 
@@ -100,7 +100,7 @@ class TimeSlots:
         print("Slots am " + str(day) + ":")
         for i in range(day * (24 * 12), (day + 1) * (24 * 12)):
             if i % 12 == 0:
-                print(f"{(i % (24 * 12)) // 12:2} Uhr: ", end='')
+                print("%2s Uhr: " % ((i % (24 * 12)) // 12), end='')
             if self.__slots[i]:
                 print('0', end='')
             else:
@@ -109,12 +109,11 @@ class TimeSlots:
                 print()
 
     def html_preformatted(self):
-        output = f"        {str(Weekday.MONDAY): <11}  {str(Weekday.TUESDAY): <11}  {str(Weekday.WEDNESDAY): <11}  " \
-                 f"{str(Weekday.THURSDAY): <11}  {str(Weekday.FRIDAY): <11}  {str(Weekday.SATURDAY): <11}  " \
-                 f"{str(Weekday.SUNDAY): <11}\n"
+        output = "        {0: <11}  {1: <11}  {2: <11}  {3: <11}  {4: <11}  {5: <11}  {6: <11}\n".format(
+            Weekday.MONDAY, Weekday.TUESDAY, Weekday.WEDNESDAY, Weekday.THURSDAY, Weekday.FRIDAY, Weekday.SATURDAY, Weekday.SUNDAY)
         output += "\n"
         for hour in range(0, 24):
-            output += f"{hour:2} Uhr  "
+            output += "%2s Uhr  " % hour
             for day in range(0, 7):
                 for slot in range(0, 11):
                     if self.__slots[day * (24 * 12) + hour * 12 + slot]:

@@ -35,7 +35,7 @@ if __name__ == '__main__':
             parser.feed(resp)
             gyms.extend(parser.infos)
             sleep(0.1)
-            print(f"\r{100 * i / 200:.2f}%", end='')
+            print("\r%.2f%%" % (100 * i / 200), end='')
         print()
 
         # Schedules
@@ -80,7 +80,7 @@ if __name__ == '__main__':
             schedule['sectioned'] = sectioned
             schedules.append(schedule)
             sleep(0.1)
-            print(f"\r{100 * index / (len(gyms) - 1):.2f}%", end='')
+            print("\r%.2f%%" % (100 * index / (len(gyms) - 1)), end='')
         print()
 
         # Save result
