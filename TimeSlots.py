@@ -110,7 +110,7 @@ class TimeSlots:
 
     def html_preformatted(self):
         output = "        {0: <11}  {1: <11}  {2: <11}  {3: <11}  {4: <11}  {5: <11}  {6: <11}\n".format(
-            Weekday.MONDAY, Weekday.TUESDAY, Weekday.WEDNESDAY, Weekday.THURSDAY, Weekday.FRIDAY, Weekday.SATURDAY, Weekday.SUNDAY)
+            str(Weekday.MONDAY), str(Weekday.TUESDAY), str(Weekday.WEDNESDAY), str(Weekday.THURSDAY), str(Weekday.FRIDAY), str(Weekday.SATURDAY), str(Weekday.SUNDAY))
         output += "\n"
         for hour in range(0, 24):
             output += "%2s Uhr  " % hour

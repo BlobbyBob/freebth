@@ -101,7 +101,7 @@
 
 </div>
 <script>
-    const base = 'http://localhost:2020'
+    const base = 'http://' + window.location.host;
 
     async function details(id) {
         const urlSearchParams = new URLSearchParams();
