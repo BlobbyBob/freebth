@@ -10,7 +10,7 @@ schedules = []
 def compute_overview(starthour, startmin, endhour, endmin, slotsize, days):
     schedule_url = 'https://stadtplan.bonn.de/cms/cms.pl?Amt=Stadtplan&set=5_1_3_0&act=1&Drucken=1&meta=neu&sid=&suchwert='
 
-    output = "<h2>Freie Slots (Mindestgröße %s min) zwischen %s:%02s und %s:%02s</h2>" % (slotsize, starthour, startmin, endhour, endmin)
+    output = "<h2>Freie Slots (Mindestgröße %d min) zwischen %d:%02d und %d:%02d</h2>" % (slotsize, starthour, startmin, endhour, endmin)
     for schedule in schedules:
         if schedule['sectioned']:
             for i, timeslots in enumerate(schedule['timeslots']):

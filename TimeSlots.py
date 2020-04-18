@@ -82,7 +82,7 @@ class TimeSlots:
                         hour = (s % (24 * 12)) // 12
                         minute = ((s % 12) * 5) % 60
                         length = slotsize * 5
-                        slots.append("Freier Slot: %s ab %2s:%2s für %s Minuten" % (str(day), hour, minute, length))
+                        slots.append("Freier Slot: %s ab %d:%02d für %d Minuten" % (str(day), hour, minute, length))
                     slotsize = 0
                 else:
                     slotsize += 1
@@ -92,7 +92,7 @@ class TimeSlots:
                 hour = (s % (24 * 12)) // 12
                 minute = ((s % 12) * 5) % 60
                 length = slotsize * 5
-                slots.append("Freier Slot: %s ab %2s:%2s für %s Minuten" % (str(day), hour, minute, length))
+                slots.append("Freier Slot: %s ab %d:%02d für %d Minuten" % (str(day), hour, minute, length))
 
         return slots
 
@@ -100,7 +100,7 @@ class TimeSlots:
         print("Slots am " + str(day) + ":")
         for i in range(day * (24 * 12), (day + 1) * (24 * 12)):
             if i % 12 == 0:
-                print("%2s Uhr: " % ((i % (24 * 12)) // 12), end='')
+                print("%2d Uhr: " % ((i % (24 * 12)) // 12), end='')
             if self.__slots[i]:
                 print('0', end='')
             else:
@@ -113,7 +113,7 @@ class TimeSlots:
             str(Weekday.MONDAY), str(Weekday.TUESDAY), str(Weekday.WEDNESDAY), str(Weekday.THURSDAY), str(Weekday.FRIDAY), str(Weekday.SATURDAY), str(Weekday.SUNDAY))
         output += "\n"
         for hour in range(0, 24):
-            output += "%2s Uhr  " % hour
+            output += "%2d Uhr  " % hour
             for day in range(0, 7):
                 for slot in range(0, 11):
                     if self.__slots[day * (24 * 12) + hour * 12 + slot]:
