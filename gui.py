@@ -110,7 +110,7 @@ class FreebthRequestHandler(http.server.BaseHTTPRequestHandler):
 
 
 def start_webserver(port=2020):
-    with socketserver.TCPServer(("", port), FreebthRequestHandler) as httpd:
-        print("[INFO] Server listening on port", port)
-        httpd.serve_forever()
+    httpd = socketserver.TCPServer(("", port), FreebthRequestHandler)
+    print("[INFO] Server listening on port", port)
+    httpd.serve_forever()
     print("Stopped server.")
