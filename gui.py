@@ -10,30 +10,28 @@ schedules = []
 def compute_overview(starthour, startmin, endhour, endmin, slotsize, days):
     schedule_url = 'https://stadtplan.bonn.de/cms/cms.pl?Amt=Stadtplan&set=5_1_3_0&act=1&Drucken=1&meta=neu&sid=&suchwert='
 
-    output = f"<h2>Freie Slots (Mindestgröße {slotsize} min) zwischen {starthour}:{startmin:02} und {endhour}:{endmin:02}</h2>"
+    output = "<h2>Freie Slots (Mindestgröße %s min) zwischen %s:%02s und %s:%02s</h2>" % (slotsize, starthour, startmin, endhour, endmin)
     for schedule in schedules:
         if schedule['sectioned']:
             for i, timeslots in enumerate(schedule['timeslots']):
                 freeslots = timeslots.find_free((starthour, startmin), (endhour, endmin), slotsize, days)
                 if len(freeslots) > 0:
-                    output += f"<b>{schedule['gymName']}</b> (Hallenteil {i + 1})<br>"
-                    output += f"<small><a href='{schedule_url}{schedule['gymId']}' target='_blank'>Stadt Bonn</a> - " \
-                              f"<a href='#details' onclick='return details(\"{schedule['gymId']}\")'>Schnellübersicht" \
-                              f"</a></small>"
+                    output += "<b>%s</b> (Hallenteil %s)<br>" % (schedule['gymName'], i+1)
+                    output += "<small><a href='%s%s' target='_blank'>Stadt Bonn</a> - " % (schedule_url, schedule['gymId'])
+                    output += "<a href='#details' onclick='return details(\"%s\")'>Schnellübersicht</a></small>" % schedule['gymId']
                     output += "<ul>"
                     for slot in freeslots:
-                        output += f"<li>{slot}</li>"
+                        output += "<li>%s</li>" % slot
                     output += "</ul>"
         else:
             freeslots = schedule['timeslots'].find_free((starthour, startmin), (endhour, endmin), slotsize, days)
             if len(freeslots) > 0:
-                output += f"<b>{schedule['gymName']}</b><br>"
-                output += f"<small><a href='{schedule_url}{schedule['gymId']}' target='_blank'>Stadt Bonn</a> - " \
-                          f"<a href='#details' onclick='return details(\"{schedule['gymId']}\")'>Schnellübersicht" \
-                          f"</a></small>"
+                output += "<b>%s</b><br>" % schedule['gymName']
+                output += "<small><a href='%s%s' target='_blank'>Stadt Bonn</a> - " % (schedule_url, schedule['gymId'])
+                output += "<a href='#details' onclick='return details(\"%s\")'>Schnellübersicht</a></small>" % schedule['gymId']
                 output += "<ul>"
                 for slot in freeslots:
-                    output += f"<li>{slot}</li>"
+                    output += "<li>%s</li>" % slot
                 output += "</ul>"
 
     return output
@@ -42,10 +40,10 @@ def compute_overview(starthour, startmin, endhour, endmin, slotsize, days):
 def compute_details(gym_id):
     for schedule in schedules:
         if schedule['gymId'] == gym_id:
-            output = f"<h3>Übersicht für {schedule['gymName']}</h3>"
+            output = "<h3>Übersicht für %s</h3>" % schedule['gymName']
             if schedule['sectioned']:
                 for i, timeslots in enumerate(schedule['timeslots']):
-                    output += f"<h5>Hallenteil {i + 1}</h5>"
+                    output += "<h5>Hallenteil %s</h5>" % (i+1)
                     output += "<pre>"
                     output += timeslots.html_preformatted()
                     output += "</pre>"

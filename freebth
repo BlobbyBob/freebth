@@ -48,8 +48,7 @@ if __name__ == '__main__':
             schedule['gymName'] = gym[1]
 
             # Fetch
-            req = urllib.request.urlopen(
-                f"{scheduleUrl}{schedule['gymId']}FFF{nextMonday.day}.{nextMonday.month}.{nextMonday.year}")
+            req = urllib.request.urlopen("%s%sFFF%s.%s.%s") % (scheduleUrl, schedule['gymId'], nextMonday.day, nextMonday.month, nextMonday.year)
             contentType = req.info().get('Content-Type')
             resp = req.read().decode(contentType.split('=')[1])
 
