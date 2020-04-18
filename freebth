@@ -7,8 +7,9 @@ from datetime import date, timedelta
 from time import sleep
 
 from CustomParser import *
-from TimeSlots import TimeSlots, Weekday
+from TimeSlots import *
 from util import *
+import gui
 
 if __name__ == '__main__':
     nextMonday = date.today()
@@ -88,17 +89,5 @@ if __name__ == '__main__':
         with open(datafile, 'rb') as f:
             schedules = pickle.load(f)
 
-    for schedule in schedules:
-        if schedule['sectioned']:
-            for i, timeslots in enumerate(schedule['timeslots']):
-                freeslots = timeslots.find_free((9, 0), (22, 0), 30)
-                if len(freeslots) > 0:
-                    print(f"{schedule['gymName']} (Hallenteil {i + 1})")
-                    for slot in freeslots:
-                        print("    " + slot)
-        else:
-            freeslots = schedule['timeslots'].find_free((9, 0), (22, 0), 30)
-            if len(freeslots) > 0:
-                print(schedule['gymName'])
-                for slot in freeslots:
-                    print("    " + slot)
+    gui.schedules = schedules
+    gui.start_webserver()
