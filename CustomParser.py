@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 from html.parser import HTMLParser
 
@@ -34,6 +35,8 @@ class _ScheduleParserState(Enum):
     DESCRIPTION = 1
     EVENT = 2
     APPOINTMENTTYPE = 3
+    LOCATION = 4
+    SECTION = 5
 
 
 class ScheduleParser(HTMLParser):
@@ -53,10 +56,16 @@ class ScheduleParser(HTMLParser):
             elif self.__state == _ScheduleParserState.EVENT:
                 self.__state = _ScheduleParserState.APPOINTMENTTYPE
             elif self.__state == _ScheduleParserState.APPOINTMENTTYPE:
+                self.__state = _ScheduleParserState.LOCATION
+            elif self.__state == _ScheduleParserState.LOCATION:
+                self.__state = _ScheduleParserState.SECTION
+            elif self.__state == _ScheduleParserState.SECTION:
                 self.__state = _ScheduleParserState.INIT
 
     def handle_data(self, data):
         if self.__state == _ScheduleParserState.DESCRIPTION:
             self.schedule[len(self.schedule) - 1].append(data.strip('\n\r\t'))
         elif self.__state == _ScheduleParserState.APPOINTMENTTYPE:
+            self.schedule[len(self.schedule) - 1].append(data.strip('\n\r\t'))
+        elif self.__state == _ScheduleParserState.SECTION:
             self.schedule[len(self.schedule) - 1].append(data.strip('\n\r\t'))

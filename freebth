@@ -5,6 +5,7 @@ from datetime import date, timedelta
 
 from CustomParser import *
 from TimeSlots import TimeSlots, Weekday
+from util import *
 
 if __name__ == '__main__':
     nextMonday = date.today()
@@ -35,7 +36,6 @@ if __name__ == '__main__':
         schedule = dict()
         schedule['gymId'] = gym[0]
         schedule['gymName'] = gym[1]
-        schedule['timeslots'] = TimeSlots()
 
         # Fetch
         req = urllib.request.urlopen(
@@ -46,34 +46,43 @@ if __name__ == '__main__':
         # Parse
         parser = ScheduleParser()
         parser.feed(resp)
-        timeinfoRegex = re.compile('^(\\w+) .+ --- ([0-9]+):([0-9]+) - ([0-9]+):([0-9]+)')
+
+        # Convert to time slots
+        sectioned, maxSection = parse_section_meta(parser.schedule)
+        if sectioned:
+            schedule['timeslots'] = list()
+            for i in range(0, maxSection):
+                schedule['timeslots'].append(TimeSlots())
+        else:
+            schedule['timeslots'] = TimeSlots()
+
         for details in parser.schedule:
             timeinfo = details[0]
             eventType = details[1]
-            # Only look at regular events
-            if 'regelmäßiger' in eventType:
-                dayStr, starthour, startmin, endhour, endmin = timeinfoRegex.search(timeinfo).groups()
-                days = {
-                    "Montag": Weekday.MONDAY,
-                    "Dienstag": Weekday.TUESDAY,
-                    "Mittwoch": Weekday.WEDNESDAY,
-                    "Donnerstag": Weekday.THURSDAY,
-                    "Freitag": Weekday.FRIDAY,
-                    "Samstag": Weekday.SATURDAY,
-                    "Sonntag": Weekday.SUNDAY,
-                }
-                try:
-                    day = days[dayStr]
-                    schedule['timeslots'].block((day, int(starthour), int(startmin)), (day, int(endhour), int(endmin)))
-                except KeyError:
-                    print("Unknown day descriptor: " + dayStr)
+            sectioninfo = details[2]
 
+            if sectioned:
+                sections = parse_sections(sectioninfo)
+                for section in sections:
+                    parse_into_timeslots(schedule['timeslots'][section-1], timeinfo, eventType)
+            else:
+                parse_into_timeslots(schedule['timeslots'], timeinfo, eventType)
+
+        schedule['sectioned'] = sectioned
         schedules.append(schedule)
         break
 
     for schedule in schedules:
-        freeslots = schedule['timeslots'].find_free((9, 0), (22, 0), 30)
-        if len(freeslots) > 0:
-            print(schedule['gymName'])
-            for slot in freeslots:
-                print("    " + slot)
+        if schedule['sectioned']:
+            for i, timeslots in enumerate(schedule['timeslots']):
+                freeslots = timeslots.find_free((9, 0), (22, 0), 30)
+                if len(freeslots) > 0:
+                    print(f"{schedule['gymName']} (Hallenteil {i+1})")
+                    for slot in freeslots:
+                        print("    " + slot)
+        else:
+            freeslots = schedule['timeslots'].find_free((9, 0), (22, 0), 30)
+            if len(freeslots) > 0:
+                print(schedule['gymName'])
+                for slot in freeslots:
+                    print("    " + slot)
