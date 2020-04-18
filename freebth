@@ -23,6 +23,7 @@ if __name__ == '__main__':
         gyms = list()
         listUrl = 'https://stadtplan.bonn.de/cms/cms.pl?Amt=Stadtplan&set=5_1_1_1&act=1&Drucken=1&umtausch=&geoid='
 
+        print("Fetching gym list ... ")
         for i in range(0, 210, 10):
             # Fetch
             req = urllib.request.urlopen(listUrl + str(i))
@@ -32,13 +33,16 @@ if __name__ == '__main__':
             # Parse
             parser = GymListParser()
             parser.feed(resp)
-            print(parser.infos)
             gyms.extend(parser.infos)
             sleep(0.1)
+            print(f"\r{100 * i / 200:.2f}%", end='')
+        print()
 
+        # Schedules
         scheduleUrl = 'https://stadtplan.bonn.de/cms/cms.pl?Amt=Stadtplan&set=5_1_3_0&act=1&Drucken=1&meta=neu&sid=&suchwert='
 
-        for gym in gyms:
+        print("Fetching schedules ...")
+        for index, gym in enumerate(gyms):
             schedule = dict()
             schedule['gymId'] = gym[0]
             schedule['gymName'] = gym[1]
@@ -77,6 +81,8 @@ if __name__ == '__main__':
             schedule['sectioned'] = sectioned
             schedules.append(schedule)
             sleep(0.1)
+            print(f"\r{100 * index / (len(gyms) - 1):.2f}%", end='')
+        print()
 
         # Save result
         with open(datafile, 'wb') as f:
